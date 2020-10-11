@@ -1,0 +1,16 @@
+[
+  {
+    "name": "foo",
+    "phone": "+79602330011",
+    "time": "16:00",
+    "day": "monday",
+    "teacher_id": 0
+  },
+  {
+    "teacher_id": 1,
+    "name": "eee",
+    "phone": "555",
+    "time": "16:00",
+    "date": "mon"
+  }
+]
