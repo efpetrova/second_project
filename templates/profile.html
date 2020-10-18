@@ -33,19 +33,19 @@
     <div class="card my-4 mx-auto">
       <div class="card-body m-2 m-md-4">
         <article class="row">
-          <div class="col-5"><img src= {{teacher["picture"]}} class="img-fluid" alt=""></div>
+          <div class="col-5"><img src= {{teacher.picture}} class="img-fluid" alt=""></div>
           <div class="col-7">
 
             <section class="teacher=info">
-              <h1 class="h2">{{teacher["name"]}} </h1>
-              <p><span class="badge badge-secondary mr-2">Для путешествий </span>Рейтинг: {{teacher["rating"]}} Ставка: {{teacher["price"]}}/час</p>
-              <p>Native English language teacherHi Everyone! {{teacher["about"]}}</p>
+              <h1 class="h2">{{teacher.name}} </h1>
+              <p><span class="badge badge-secondary mr-2">Для путешествий </span>Рейтинг: {{teacher.rating}} Ставка: {{teacher.price}}/час</p>
+              <p>Native English language teacherHi Everyone! {{teacher.about}}</p>
             </section>
 
             <section class="available">
 
               <h4 class="mb-4 mt-5">Записаться на пробный урок</h4>
-              {% for key,value in teacher["free"].items() %}
+              {% for key,value in teacher.free_().items() %}
               <h6 class="mt-4">{{days[key]}}</h6>
               {% if true in value.values() %}
                 {%for time,value in value.items()%}

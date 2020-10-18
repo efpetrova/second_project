@@ -9,6 +9,7 @@ from wtforms import HiddenField
 from wtforms.widgets import HiddenInput
 from wtforms import RadioField
 import random
+from models import Teacher, Booking, Request
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
@@ -27,55 +28,21 @@ with open('bookings.json', 'r') as f:
     bookings = json.load(f)
 
 
-class Teacher(db.Model):
-    __tablename__ = "teachers"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    about = db.Column(db.String, nullable=False)
-    rating = db.Column(db.Float)
-    picture = db.Column(db.String)
-    price = db.Column(db.Integer)
-    goals = db.Column(db.String)
-    schedule = db.Column(db.String)
-    booking = db.relationship("Booking",back_populates="teacher")
-
-
 def update_teachers():
     teachers_entries = []
     for line in database["teachers"]:
         new_entry = Teacher(id=line['id'], name=line['name'], about=line['about'], rating=line['rating'],
-                            picture=line['picture'], price=line['price'], goals=",".join(line['goals']), schedule=json.dumps(line['free'])
+                            picture=line['picture'], price=line['price'], goals=",".join(line['goals']),
+                            free=json.dumps(line['free'])
                             )
         teachers_entries.append(new_entry)
 
-
     db.session.add_all(teachers_entries)
     db.session.commit()
+    db.create_all()
 
 
-#update_teachers()
-
-
-class Booking(db.Model):
-    __tablename__ = "bookings"
-    id = db.Column(db.Integer, primary_key=True)
-    teacher = db.relationship("Teacher", db.ForeignKey('teachers.id'),back_populates="booking")
-    name = db.Column(db.String, nullable=False)
-    phone = db.Column(db.String)
-    date = db.Column(db.Date)
-    time = db.Column(db.Time)
-
-
-class Request(db.Model):
-    __tablename__ = "requests"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    phone = db.Column(db.String)
-    goal = db.Column(db.String)
-    frequency = db.Column(db.String)
-
-
-db.create_all()
+# update_teachers()
 
 
 def create_booking(form):
@@ -108,17 +75,24 @@ frequencies = {"1": "1-2 часа в неделю", "2": "3-5 часов в не
 
 @app.route('/')
 def main():
-    return render_template('index.html', teachers=random.choices(teachers, k=6), goals=goals)
+    teachers_=db.session.query(Teacher).all()
+    print(teachers_)
+    return render_template('index.html', teachers=random.choices(teachers_,k=6), goals=goals)
 
 
-def get_id_teacher(goal):
-    return [k for k in teachers if goal in k["goals"]]
+
+#def get_id_teacher(goal):
+#    return [k for k in teachers if goal in k["goals"]]
+
+
+def get_id_teachers(goal):
+    return db.session.query(Teacher).filter(Teacher.goals.contains(goal)).order_by(Teacher.rating.desc()).all()
 
 
 @app.route('/goals/<goal_id>/')
 def goal(goal_id):
     goal = goals[goal_id]
-    return render_template('goal.html', goal=goal, teachers=get_id_teacher(goal_id))
+    return render_template('goal.html', goal=goal, teachers=get_id_teachers(goal_id))
 
 
 class RequestForm(FlaskForm):
@@ -146,7 +120,8 @@ def request_done():
 
 @app.route('/profile/<teacher_id>')
 def profile(teacher_id):
-    teacher = teachers[int(teacher_id)]
+    # teacher = teachers[int(teacher_id)]
+    teacher = db.session.query(Teacher).get_or_404(int(teacher_id))
     return render_template('profile.html', teacher=teacher, teacher_id=teacher_id, days=days)
 
 
