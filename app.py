@@ -1,4 +1,6 @@
 from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import json
 from flask_wtf import FlaskForm
 from wtforms import StringField
@@ -9,6 +11,11 @@ from wtforms import RadioField
 import random
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+migrate.init_app(app, db)
+
 app.secret_key = 'my-super-secret-phrase-I-dont-tell-this-to-nobody'
 
 with open('data.json', 'r') as f:
@@ -18,6 +25,57 @@ teachers = database["teachers"]
 goals = database['goals']
 with open('bookings.json', 'r') as f:
     bookings = json.load(f)
+
+
+class Teacher(db.Model):
+    __tablename__ = "teachers"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    about = db.Column(db.String, nullable=False)
+    rating = db.Column(db.Float)
+    picture = db.Column(db.String)
+    price = db.Column(db.Integer)
+    goals = db.Column(db.String)
+    schedule = db.Column(db.String)
+    booking = db.relationship("Booking",back_populates="teacher")
+
+
+def update_teachers():
+    teachers_entries = []
+    for line in database["teachers"]:
+        new_entry = Teacher(id=line['id'], name=line['name'], about=line['about'], rating=line['rating'],
+                            picture=line['picture'], price=line['price'], goals=",".join(line['goals']), schedule=json.dumps(line['free'])
+                            )
+        teachers_entries.append(new_entry)
+
+
+    db.session.add_all(teachers_entries)
+    db.session.commit()
+
+
+#update_teachers()
+
+
+class Booking(db.Model):
+    __tablename__ = "bookings"
+    id = db.Column(db.Integer, primary_key=True)
+    teacher = db.relationship("Teacher", db.ForeignKey('teachers.id'),back_populates="booking")
+    name = db.Column(db.String, nullable=False)
+    phone = db.Column(db.String)
+    date = db.Column(db.Date)
+    time = db.Column(db.Time)
+
+
+class Request(db.Model):
+    __tablename__ = "requests"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    phone = db.Column(db.String)
+    goal = db.Column(db.String)
+    frequency = db.Column(db.String)
+
+
+db.create_all()
 
 
 def create_booking(form):
@@ -50,27 +108,28 @@ frequencies = {"1": "1-2 часа в неделю", "2": "3-5 часов в не
 
 @app.route('/')
 def main():
-
-    return render_template('index.html',teachers=random.choices(teachers,k=6), goals=goals)
+    return render_template('index.html', teachers=random.choices(teachers, k=6), goals=goals)
 
 
 def get_id_teacher(goal):
     return [k for k in teachers if goal in k["goals"]]
 
+
 @app.route('/goals/<goal_id>/')
 def goal(goal_id):
     goal = goals[goal_id]
-    return render_template('goal.html', goal=goal,teachers=get_id_teacher(goal_id))
+    return render_template('goal.html', goal=goal, teachers=get_id_teacher(goal_id))
 
 
 class RequestForm(FlaskForm):
     name = StringField('Вас зовут')
     phone = StringField('Ваш телефон')
-    goal = RadioField(choices=list(zip(goals.keys(),goals.values())))
+    goal = RadioField(choices=list(zip(goals.keys(), goals.values())))
 
     frequency = RadioField(
         choices=[("1", "1-2 часа в неделю"), ("2", "3-5 часов в неделю"), ("3", "5-7 часов в неделю"),
                  ("4", "7-10 часов в неделю")])
+
 
 @app.route('/request/', methods=['GET'])
 def request():
