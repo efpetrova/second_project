@@ -35,8 +35,8 @@ class Booking(db.Model):
     teacher = db.relationship("Teacher")
     name = db.Column(db.String, nullable=False)
     phone = db.Column(db.String)
-    date = db.Column(db.Date)
-    time = db.Column(db.Time)
+    date = db.Column(db.String)
+    time = db.Column(db.String)
 
 class Request(db.Model):
     __tablename__ = "requests"

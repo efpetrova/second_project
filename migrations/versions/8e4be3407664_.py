@@ -22,8 +22,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('phone', sa.String(), nullable=True),
-    sa.Column('date', sa.Date(), nullable=True),
-    sa.Column('time', sa.Time(), nullable=True),
+    sa.Column('date', sa.String(), nullable=True),
+    sa.Column('time', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('requests',

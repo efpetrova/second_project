@@ -1,6 +1,16 @@
 import json
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from models import Teacher, Booking, Request
+
 
 goals = {"travel": "Для путешествий", "study": "Для учебы", "work": "Для работы", "relocate": "Для переезда",'coding': "Для программирования"}
+
+days = {"mon": "Понедельник", "tue": "Вторник", "wed": "Среда", "thu": "Четверг", "fri": "Пятница", "sat": "Суббота",
+        "sun": "Воскресенье"}
+
+frequencies = {"1": "1-2 часа в неделю", "2": "3-5 часов в неделю", "3": "5-7 часов в неделю",
+               "4": "7-10 часов в неделю"}
 
 teachers = [
 
@@ -323,14 +333,29 @@ teachers = [
     },
 ]
 
+def create_data_json():
+    print("Creating goals")
+    with open('data.json', "w",encoding='utf-8') as f:
+        json.dump({'goals':goals, 'days': days, 'frequencies': frequencies}, f, indent=2)
 
-with open('data.json', "w",encoding='utf-8') as f:
-   json.dump({'teachers': teachers,'goals':goals}, f, indent=2)
+def create_teachers():
+    print("Creating teacher")
+    teachers_entries = []
+    for teacher in teachers:
+        new_entry = Teacher(id=teacher['id'], name=teacher['name'], about=teacher['about'], rating=teacher['rating'],
+                            picture=teacher['picture'], price=teacher['price'], goals=",".join(teacher['goals']),
+                            free=json.dumps(teacher['free'])
+                            )
+        teachers_entries.append(new_entry)
+    db.session.add_all(teachers_entries)
+    db.session.commit()
+    db.create_all()
 
-with open('bookings.json', "w",encoding='utf-8') as f:
-   json.dump([{'name': 'foo', 'phone': "+79602330011", 'time': '16:00','day': 'monday','teacher_id': 0}], f, indent=2)
+if __name__ == '__main__':
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+    db = SQLAlchemy(app)
 
+    create_data_json()
+    create_teachers()
 
-#with open('data.json', "r",encoding='utf-8') as f:
-#    x = json.load(f)
-#    print(x)

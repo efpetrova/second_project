@@ -31,7 +31,7 @@
   </header>
   <main class="container mt-5">
     <div class="col-12 col-sm-10 col-lg-6 offset-lg-3 offset-sm-1">
-      <form method="POST" action="/request_done" class="card mb-5">
+      <form method="POST" action="/request/create/" class="card mb-5">
         <div class="card-body text-center pt-5">
           <h1 class="h3 card-title mt-4 mb-2">Подбор преподавателя</h1>
           <p class="px-5">Напишите, чего вам нужно и&nbsp;мы&nbsp;подберем отличных&nbsp;ребят</p>
@@ -61,11 +61,18 @@
         </div>
         <hr>
         <div class="card-body mx-3">
+            {{ form.csrf_token }}
             {{ form.name.label(class_="mb-1 mt-2") }}
             {{ form.name(class_="form-control")}}
-
+             {% for err in form.name.errors %}
+            <p class="alert-warning">{{err}}</p>
+            {%endfor%}
             {{form.phone.label(class_="mb-1 mt-2")}}
             {{ form.phone(class_="form-control")}}
+
+             {% for err in form.phone.errors %}
+                <p class="alert-warning">{{err}}</p>
+             {%endfor%}
           <input type="submit" class="btn btn-primary mt-4 mb-2" value="Найдите мне преподавателя">
         </div>
       </form>

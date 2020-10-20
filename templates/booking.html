@@ -32,7 +32,7 @@
   <main class="container mt-3">
     <div class="row mt-5">
       <div class="col-10 col-md-6 offset-1 offset-md-3 mb-3">
-        <form method="POST" action="/booking_done" class="card mb-3">
+    <form method="POST" action="/booking/create/" class="card mb-3">
           <div class="card-body text-center pt-5">
             <img src="../static/pict 1.png" class="mb-3" width="95" alt="">
             <h2 class="h5 card-title mt-2 mb-2">{{teacher_name}}</h2>
@@ -49,10 +49,15 @@
             {{ form.csrf_token }}
             {{ form.name.label(class_="mb-1 mt-2") }}
             {{ form.name(class_="form-control")}}
-
+             {% for err in form.name.errors %}
+            <p class="alert-warning">{{err}}</p>
+            {%endfor%}
             {{form.phone.label(class_="mb-1 mt-2")}}
             {{ form.phone(class_="form-control")}}
 
+             {% for err in form.phone.errors %}
+                <p class="alert-warning">{{err}}</p>
+             {%endfor%}
             <input type="submit" class="btn btn-primary btn-block mt-4" value="Записаться на пробный урок">
 
           </div>
