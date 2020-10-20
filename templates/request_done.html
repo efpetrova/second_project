@@ -41,8 +41,8 @@
           </div>
           <hr />
           <div class="card-body mx-5">
-            <p><b>Цель занятий:</b> {{form.goal.data}}</p>
-            <p><b>Времени есть:</b> {{form.frequency.data}}</p>
+            <p><b>Цель занятий:</b> {{dict(form.goal.choices)[form.goal.data]}}</p>
+            <p><b>Времени есть:</b> {{dict(form.frequency.choices)[form.frequency.data]}}</p>
             <p><b>Имя:</b> {{form.name.data}} </p>
             <p><b>Телефон:</b> {{form.phone.data}}</p>
           </div>

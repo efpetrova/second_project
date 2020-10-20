@@ -41,7 +41,6 @@ class RequestForm(FlaskForm):
     name = StringField('Вас зовут', [Length(min=3)])
     phone = StringField('Ваш телефон', [Length(min=9)])
     goal = RadioField(choices=list(zip(goals.keys(), goals.values())))
-
     frequency = RadioField(
         choices=list(zip(frequencies.keys(), frequencies.values())))
 
@@ -64,7 +63,8 @@ def request_create():
 
     if my_req_form.validate_on_submit():
         _create_request(my_req_form)
-        return render_template('request_done.html', goals=my_req_form.goal.data, frequencies=my_req_form.frequency.data,
+
+        return render_template('request_done.html', goals=my_req_form.goal.data,
                                form=my_req_form)
     else:
         return render_template('request.html', form=my_req_form)
